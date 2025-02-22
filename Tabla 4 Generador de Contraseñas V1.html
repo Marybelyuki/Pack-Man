@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Contraseñas Seguras</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-300 via-pink-300 to-turquoise-300">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-96">
+        <h2 class="text-xl font-bold mb-4 text-center">Generador de Contraseñas Seguras</h2>
+        
+        <p class="text-sm mb-4 text-gray-600 text-center">Seleccione las opciones para generar una contraseña segura y personalizada.</p>
+        
+        <label class="block mb-2">Longitud de la contraseña:</label>
+        <input type="range" id="length" min="4" max="32" value="12" class="w-full mb-4" oninput="updateLengthValue()">
+        <p id="lengthValue" class="text-center mb-4 font-bold">12</p>
+        
+        <div class="mb-4">
+            <label class="block"><input type="checkbox" id="uppercase" checked> Incluir mayúsculas</label>
+            <label class="block"><input type="checkbox" id="lowercase" checked> Incluir minúsculas</label>
+            <label class="block"><input type="checkbox" id="numbers" checked> Incluir números</label>
+            <label class="block"><input type="checkbox" id="symbols"> Incluir símbolos</label>
+            <label class="block"><input type="checkbox" id="animals"> Incluir nombres de animales</label>
+        </div>
+        
+        <button onclick="generatePassword()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Generar Contraseña</button>
+        
+        <div class="mt-4">
+            <input type="text" id="password" readonly class="w-full p-2 border rounded bg-gray-200">
+            <button onclick="copyToClipboard()" class="w-full mt-2 bg-green-500 text-white p-2 rounded hover:bg-green-600">Copiar</button>
+        </div>
+        
+        <p id="strength" class="text-center mt-2 font-semibold"></p>
+    </div>
+    
+    <script>
+        const animals = ['León', 'Tigre', 'Águila', 'Delfín', 'Lobo', 'Panda', 'Cebra', 'Jaguar', 'Elefante', 'Halcón'];
+
+        function updateLengthValue() {
+            document.getElementById('lengthValue').innerText = document.getElementById('length').value;
+        }
+
+        function generatePassword() {
+            const length = parseInt(document.getElementById('length').value);
+            const uppercase = document.getElementById('uppercase').checked;
+            const lowercase = document.getElementById('lowercase').checked;
+            const numbers = document.getElementById('numbers').checked;
+            const symbols = document.getElementById('symbols').checked;
+            const includeAnimals = document.getElementById('animals').checked;
+            
+            const upperChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const lowerChars = 'abcdefghijklmnopqrstuvwxyz';
+            const numberChars = '0123456789';
+            const symbolChars = '!@#$%^&*()_+[]{}|;:,.<>?/';
+            
+            let allChars = '';
+            let requiredChars = '';
+            
+            if (uppercase) allChars += upperChars;
+            if (lowercase) allChars += lowerChars;
+            if (numbers) allChars += numberChars;
+            if (symbols) allChars += symbolChars;
+            
+            if (allChars === '' && !includeAnimals) {
+                alert('Seleccione al menos un conjunto de caracteres o nombres de animales.');
+                return;
+            }
+            
+            let password = '';
+            while (password.length < length - (includeAnimals ? 1 : 0)) {
+                password += allChars.charAt(Math.floor(Math.random() * allChars.length));
+            }
+            
+            if (includeAnimals) {
+                password += animals[Math.floor(Math.random() * animals.length)];
+            }
+            
+            document.getElementById('password').value = password;
+            evaluateStrength(password);
+        }
+        
+        function evaluateStrength(password) {
+            let strengthText = '';
+            let strengthColor = '';
+            const length = password.length;
+            
+            if (length < 6) {
+                strengthText = 'Muy Débil';
+                strengthColor = 'text-red-500';
+            } else if (length < 10) {
+                strengthText = 'Débil';
+                strengthColor = 'text-orange-500';
+            } else if (length < 14) {
+                strengthText = 'Aceptable';
+                strengthColor = 'text-yellow-500';
+            } else if (length < 18) {
+                strengthText = 'Fuerte';
+                strengthColor = 'text-green-500';
+            } else {
+                strengthText = 'Muy Fuerte';
+                strengthColor = 'text-blue-500';
+            }
+            
+            document.getElementById('strength').innerText = `Fortaleza: ${strengthText}`;
+            document.getElementById('strength').className = `text-center mt-2 font-semibold ${strengthColor}`;
+        }
+        
+        function copyToClipboard() {
+            const passwordField = document.getElementById('password');
+            navigator.clipboard.writeText(passwordField.value).then(() => {
+                alert('Contraseña copiada al portapapeles');
+            }).catch(() => {
+                alert('Error al copiar la contraseña');
+            });
+        }
+    </script>
+</body>
+</html>
